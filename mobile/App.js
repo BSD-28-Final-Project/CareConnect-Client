@@ -12,6 +12,8 @@ import Register from "./screens/Register";
 import Donation from "./screens/Donation";
 import Point from "./screens/Point";
 import PostDetail from "./screens/PostDetail";
+import Profile from "./screens/Profile";
+import EditProfile from "./screens/EditProfile";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,19 +31,6 @@ function MyTabs({ navigation }) {
     const token = await AsyncStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   };
-
-  async function handleLogout() {
-    try {
-      await AsyncStorage.removeItem("access_token");
-      await AsyncStorage.removeItem("user_id");
-      await AsyncStorage.removeItem("username");
-      await AsyncStorage.removeItem("email");
-      setIsLoggedIn(false);
-      Toast.show({ type: "success", text1: "Success", text2: "Logged out" });
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
-  }
 
   return (
     <Tab.Navigator
@@ -82,27 +71,22 @@ function MyTabs({ navigation }) {
         }}
       />
       <Tab.Screen
-        name={isLoggedIn ? "Logout" : "Login"}
-        component={() => null} // dummy component
+        name={isLoggedIn ? "Profile" : "Login"}
+        component={isLoggedIn ? Profile : Login}
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons
               name={isLoggedIn ? "person" : "login"}
               size={size}
-              color={isLoggedIn ? "red" : color}
+              color={color}
             />
           ),
         }}
         listeners={{
-          tabPress: (e) => {
-            e.preventDefault(); // prevent default tab navigation
-            AsyncStorage.getItem("access_token").then((token) => {
-              if (token) {
-                handleLogout();
-              } else {
-                navigation.navigate("Login");
-              }
-            });
+          tabPress: async (e) => {
+            const token = await AsyncStorage.getItem("access_token");
+            setIsLoggedIn(!!token);
           },
         }}
       />
