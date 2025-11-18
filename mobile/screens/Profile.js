@@ -87,7 +87,19 @@ export default function Profile({ navigation }) {
 
                 <TouchableOpacity
                     style={[styles.actionButton, styles.logoutBtn]}
-                    onPress={() => navigation.navigate("Logout")}
+                    onPress={async () => {
+                        try {
+                            await AsyncStorage.removeItem("access_token");
+                            await AsyncStorage.removeItem("user_id");
+                            await AsyncStorage.removeItem("username");
+                            await AsyncStorage.removeItem("email");
+                            Toast.show({ type: "success", text1: "Success", text2: "Logged out successfully" });
+                            navigation.replace("MyTabs");
+                        } catch (err) {
+                            console.error("Logout error:", err);
+                            Toast.show({ type: "error", text1: "Error", text2: "Failed to logout" });
+                        }
+                    }}
                 >
                     <MaterialIcons name="logout" size={18} color="#FFFFFF" />
                     <Text style={[styles.actionText, { color: "#FFFFFF" }]}>Logout</Text>

@@ -102,6 +102,7 @@ function MyStack() {
       />
       <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
       <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
+      <Stack.Screen name="Logout" component={Logout} options={{ headerShown: false }} />
       <Stack.Screen
         name="Login"
         component={Login}
