@@ -21,12 +21,8 @@ export default function Home({ navigation }) {
 
   const fetchPosts = async () => {
     try {
-      // console.log(`BASE_URL: ${BASE_URL}`);
-      
       const { data } = await axios.get(`${BASE_URL}/api/activities`);
 
-      console.log(data);
-      
       setPosts(data.data);
     } catch (error) {
       console.error("Fetch posts error:", error);
@@ -80,7 +76,6 @@ export default function Home({ navigation }) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
-
     </View>
   );
 }
