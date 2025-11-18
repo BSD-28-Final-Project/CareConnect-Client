@@ -12,6 +12,8 @@ import Register from "./screens/Register";
 import Donation from "./screens/Donation";
 import Point from "./screens/Point";
 import Logout from "./screens/Logout";
+import Profile from "./screens/Profile";
+import EditProfile from "./screens/EditProfile";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,13 +69,13 @@ function MyTabs() {
         }}
       />
       <Tab.Screen
-        name={isLoggedIn ? "Logout" : "Login"}
-        component={isLoggedIn ? Logout : Login}
+        name={isLoggedIn ? "Profile" : "Login"}
+        component={isLoggedIn ? Profile : Login}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons
-              name={isLoggedIn ? "logout" : "login"}
+              name={isLoggedIn ? "person" : "login"}
               size={size}
               color={color}
             />
@@ -98,6 +100,8 @@ function MyStack() {
         component={MyTabs}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
       <Stack.Screen
         name="Login"
         component={Login}
