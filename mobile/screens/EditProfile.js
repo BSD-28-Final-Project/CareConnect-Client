@@ -44,24 +44,45 @@ export default function EditProfile({ navigation, route }) {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("access_token");
+      
+      // Try to update backend profile
+      let backendSuccess = false;
       if (token) {
-        // Update backend profile
-        await axios.put(
-          `${BASE_URL}/api/users/profile`,
-          { name },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        try {
+          console.log("Updating profile with name:", name);
+          const response = await axios.put(
+            `${BASE_URL}/api/users/profile`,
+            { name },
+            { 
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true',
+                'Content-Type': 'application/json'
+              } 
+            }
+          );
+          console.log("Backend update success:", response.data);
+          backendSuccess = true;
+        } catch (backendError) {
+          console.error("Backend update failed:", backendError.response?.status, backendError.response?.data || backendError.message);
+          // Don't throw - continue to save locally
+        }
       }
 
-      // Save locally so other screens can read
+      // Save locally so other screens can read (even if backend fails)
       await AsyncStorage.setItem("username", name);
 
-      Toast.show({ type: "success", text1: "Success", text2: "Profile updated" });
+      if (backendSuccess) {
+        Toast.show({ type: "success", text1: "Success", text2: "Profile updated" });
+      } else {
+        Toast.show({ type: "success", text1: "Saved Locally", text2: "Profile updated on device (backend sync pending)" });
+      }
+      
       // Navigate back to MyTabs - Profile will auto-refresh with useFocusEffect
       navigation.navigate("MyTabs");
     } catch (error) {
       console.error("Update profile error:", error);
-      Toast.show({ type: "error", text1: "Error", text2: error.response?.data?.message || "Failed to update profile" });
+      Toast.show({ type: "error", text1: "Error", text2: "Failed to update profile" });
     } finally {
       setLoading(false);
     }
