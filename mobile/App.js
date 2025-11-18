@@ -87,7 +87,7 @@ function MyTabs({ navigation }) {
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons
-              name={isLoggedIn ? "logout" : "login"}
+              name={isLoggedIn ? "person" : "login"}
               size={size}
               color={isLoggedIn ? "red" : color}
             />
@@ -118,6 +118,8 @@ function MyStack() {
         component={MyTabs}
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
       <Stack.Screen
         name="Login"
         component={Login}
