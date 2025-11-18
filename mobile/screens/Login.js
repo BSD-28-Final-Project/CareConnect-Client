@@ -38,6 +38,9 @@ export default function Login({ navigation }) {
       });
 
       await AsyncStorage.setItem("access_token", data.token);
+      await AsyncStorage.setItem("user_id", data.user.id);
+      await AsyncStorage.setItem("user_email", data.user.email);
+      await AsyncStorage.setItem("user_name", data.user.name);
 
       Toast.show({
         type: "success",

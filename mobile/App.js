@@ -11,22 +11,37 @@ import Login from "./screens/Login";
 import Register from "./screens/Register";
 import Donation from "./screens/Donation";
 import Point from "./screens/Point";
-import Logout from "./screens/Logout";
+import PostDetail from "./screens/PostDetail";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function MyTabs() {
+function MyTabs({ navigation }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     checkLoginStatus();
-  }, []);
+    const unsub = navigation.addListener("focus", checkLoginStatus); // update saat fokus
+    return unsub;
+  }, [navigation]);
 
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   };
+
+  async function handleLogout() {
+    try {
+      await AsyncStorage.removeItem("access_token");
+      await AsyncStorage.removeItem("user_id");
+      await AsyncStorage.removeItem("username");
+      await AsyncStorage.removeItem("email");
+      setIsLoggedIn(false);
+      Toast.show({ type: "success", text1: "Success", text2: "Logged out" });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  }
 
   return (
     <Tab.Navigator
@@ -68,21 +83,26 @@ function MyTabs() {
       />
       <Tab.Screen
         name={isLoggedIn ? "Logout" : "Login"}
-        component={isLoggedIn ? Logout : Login}
+        component={() => null} // dummy component
         options={{
-          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons
               name={isLoggedIn ? "logout" : "login"}
               size={size}
-              color={color}
+              color={isLoggedIn ? "red" : color}
             />
           ),
         }}
         listeners={{
-          tabPress: async (e) => {
-            const token = await AsyncStorage.getItem("access_token");
-            setIsLoggedIn(!!token);
+          tabPress: (e) => {
+            e.preventDefault(); // prevent default tab navigation
+            AsyncStorage.getItem("access_token").then((token) => {
+              if (token) {
+                handleLogout();
+              } else {
+                navigation.navigate("Login");
+              }
+            });
           },
         }}
       />
@@ -107,6 +127,11 @@ function MyStack() {
         name="Register"
         component={Register}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetail}
+        options={{ headerBackTitle: "Back" }}
       />
     </Stack.Navigator>
   );
