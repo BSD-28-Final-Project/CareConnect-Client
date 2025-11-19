@@ -18,7 +18,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { BASE_URL } from "../constant";
 import { WebView } from "react-native-webview";
-import { Modal } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -614,7 +613,7 @@ export default function PostDetail({ route, navigation }) {
         animationType="slide"
         presentationStyle="fullScreen"
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+        <View style={styles.modalContainer}>
           <View style={styles.webViewHeader}>
             <TouchableOpacity
               onPress={() => setShowWebView(false)}
@@ -622,7 +621,7 @@ export default function PostDetail({ route, navigation }) {
             >
               <MaterialIcons name="close" size={24} color="#111827" />
             </TouchableOpacity>
-            <Text style={styles.webViewTitle}>Payment</Text>
+            <Text style={styles.webViewTitle}>Pembayaran</Text>
             <View style={{ width: 40 }} />
           </View>
 
@@ -631,14 +630,12 @@ export default function PostDetail({ route, navigation }) {
             onNavigationStateChange={handleWebViewNavigationStateChange}
             startInLoadingState={true}
             renderLoading={() => (
-              <ActivityIndicator
-                size="large"
-                color="#047857"
-                style={{ position: "absolute", top: "50%", left: "50%" }}
-              />
+              <View style={styles.webViewLoading}>
+                <ActivityIndicator size="large" color="#047857" />
+              </View>
             )}
           />
-        </SafeAreaView>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -968,25 +965,46 @@ const styles = StyleSheet.create({
   volunteerButtonTextActive: {
     color: "#FFFFFF",
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   webViewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
     backgroundColor: "#FFFFFF",
+    ...Platform.select({
+      ios: {
+        paddingTop: 50,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   closeButton: {
     width: 40,
     height: 40,
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 20,
   },
   webViewTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
+  },
+  webViewLoading: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginLeft: -20,
+    marginTop: -20,
   },
 });

@@ -54,6 +54,7 @@ export default function Profile({ navigation }) {
           setAchievements(user.achievements || []);
           setActivityLog(user.activityLog || []);
         } catch (err) {
+          console.log(err);
           const storedUsername = await AsyncStorage.getItem("user_name");
           const storedEmail = await AsyncStorage.getItem("user_email");
           setUsername(storedUsername);
