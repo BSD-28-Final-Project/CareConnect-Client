@@ -61,11 +61,13 @@ export default function PostDetail({ route, navigation }) {
       const storedUserName = await AsyncStorage.getItem("user_name");
       setUserName(storedUserName);
 
-
       // Fetch activity detail
       const { data: activityData } = await axios.get(
         `${BASE_URL}/api/activities/${id}`
       );
+
+      console.log("activityData:", JSON.stringify(activityData, null, 2));
+
       setPost(activityData.data);
 
       // Check if user is already a volunteer
@@ -82,7 +84,7 @@ export default function PostDetail({ route, navigation }) {
           `${BASE_URL}/api/news/activity/${id}`
         );
 
-        console.log(newsData);
+        console.log("newsData:", JSON.stringify(newsData, null, 2));
 
         setNews(newsData.data || []);
       } catch (err) {
@@ -94,6 +96,9 @@ export default function PostDetail({ route, navigation }) {
         const { data: expensesData } = await axios.get(
           `${BASE_URL}/api/expenses/activity/${id}`
         );
+
+        // console.log("expensesData:", JSON.stringify(expensesData, null, 2));
+
         setExpenses(expensesData.data || []);
       } catch (err) {
         console.log("No expenses found");
@@ -108,6 +113,9 @@ export default function PostDetail({ route, navigation }) {
           const activityDonations = donationsData.data?.filter(
             (d) => d.activityId === id
           );
+
+          // console.log("dontationData:", JSON.stringify(donationsData, null, 2));
+
           setDonations(activityDonations || []);
         } catch (err) {
           console.log("No donations found");
@@ -361,11 +369,12 @@ export default function PostDetail({ route, navigation }) {
 
         {/* Content */}
         <View style={styles.content}>
-          {/* Category Badge - Top Left */}
+          {/* Category Badge */}
           <View style={styles.categoryBadge}>
             <MaterialIcons name="circle" size={8} color="#047857" />
             <Text style={styles.categoryText}>{post.category || "Acara"}</Text>
           </View>
+
           {/* Title */}
           <Text style={styles.title}>{post.title}</Text>
 
@@ -374,6 +383,66 @@ export default function PostDetail({ route, navigation }) {
             <View style={styles.locationRow}>
               <MaterialIcons name="location-on" size={16} color="#6B7280" />
               <Text style={styles.locationText}>{post.location.name}</Text>
+            </View>
+          )}
+
+          {/* Map WebView */}
+          {post.location?.lat && post.location?.lng && (
+            <View style={styles.mapContainer}>
+              <WebView
+                source={{
+                  html: `
+                    <!DOCTYPE html>
+                    <html>
+                      <head>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                          body, html { margin: 0; padding: 0; height: 100%; }
+                          #map { height: 100%; width: 100%; }
+                        </style>
+                      </head>
+                      <body>
+                        <div id="map"></div>
+                        <script>
+                          function initMap() {
+                            const location = { lat: ${
+                              post.location.lat
+                            }, lng: ${post.location.lng} };
+                            const map = new google.maps.Map(document.getElementById('map'), {
+                              zoom: 15,
+                              center: location,
+                            });
+                            const marker = new google.maps.Marker({
+                              position: location,
+                              map: map,
+                              title: "${
+                                post.location.name || "Lokasi Kegiatan"
+                              }"
+                            });
+                          }
+                        </script>
+                        <script async defer
+                          src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+                        </script>
+                      </body>
+                    </html>
+                  `,
+                }}
+                style={styles.mapWebView}
+                scrollEnabled={false}
+                bounces={false}
+              />
+              <TouchableOpacity
+                style={styles.openMapButton}
+                onPress={() => {
+                  // Open external map app
+                  const url = `https://www.google.com/maps/search/?api=1&query=${post.location.lat},${post.location.lng}`;
+                  // Linking.openURL(url);
+                }}
+              >
+                <MaterialIcons name="open-in-new" size={16} color="#047857" />
+                <Text style={styles.openMapText}>Buka di Maps</Text>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -604,9 +673,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   categoryBadge: {
-    position: "absolute",
-    top: 20,
-    left: 20,
     backgroundColor: "#ECFDF5",
     borderRadius: 20,
     paddingHorizontal: 12,
@@ -614,11 +680,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    alignSelf: "flex-start",
+    marginBottom: 12,
   },
   categoryText: {
     color: "#047857",
@@ -655,12 +718,45 @@ const styles = StyleSheet.create({
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   locationText: {
     fontSize: 14,
     color: "#6B7280",
     marginLeft: 6,
+  },
+  mapContainer: {
+    height: 200,
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 20,
+    backgroundColor: "#E5E7EB",
+    position: "relative",
+  },
+  mapWebView: {
+    flex: 1,
+  },
+  openMapButton: {
+    position: "absolute",
+    bottom: 12,
+    right: 12,
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  openMapText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#047857",
   },
   section: {
     marginBottom: 16,
