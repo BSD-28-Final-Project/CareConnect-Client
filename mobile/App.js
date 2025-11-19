@@ -14,6 +14,8 @@ import Point from "./screens/Point";
 import PostDetail from "./screens/PostDetail";
 import Profile from "./screens/Profile";
 import EditProfile from "./screens/EditProfile";
+import Subscription from "./screens/Subscription";
+import AddPaymentMethod from "./screens/AddPaymentMethod";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,6 +73,15 @@ function MyTabs({ navigation }) {
         }}
       />
       <Tab.Screen
+        name="Subscription"
+        component={Subscription}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="card-membership" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name={isLoggedIn ? "Profile" : "Login"}
         component={isLoggedIn ? Profile : Login}
         options={{
@@ -102,8 +113,16 @@ function MyStack() {
         component={MyTabs}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-      <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Login"
         component={Login}
@@ -119,11 +138,37 @@ function MyStack() {
         component={PostDetail}
         options={{ headerBackTitle: "Back" }}
       />
+      <Stack.Screen
+        name="Subscription"
+        component={Subscription}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddPaymentMethod"
+        component={AddPaymentMethod}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
+  useEffect(() => {
+    // DEVELOPMENT ONLY: Clear storage on fresh start
+    // Comment this out in production!
+    const clearStorageOnStart = async () => {
+      try {
+        // Uncomment the line below to clear storage on every app start (for testing)
+        await AsyncStorage.clear();
+        console.log("AsyncStorage cleared on app start");
+      } catch (error) {
+        console.error("Error clearing storage:", error);
+      }
+    };
+
+    clearStorageOnStart();
+  }, []);
+
   return (
     <NavigationContainer>
       <MyStack />

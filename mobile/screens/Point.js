@@ -18,6 +18,7 @@ export default function Point({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -29,15 +30,18 @@ export default function Point({ navigation }) {
       const id = await AsyncStorage.getItem("user_id");
 
       if (!token || !id) {
-        navigation.replace("Login");
+        setIsLoggedIn(false);
+        setLoading(false);
         return;
       }
 
+      setIsLoggedIn(true);
       setUserId(id);
       loadAchievements(id);
     } catch (error) {
       console.error("Auth check error:", error);
-      navigation.replace("Login");
+      setIsLoggedIn(false);
+      setLoading(false);
     }
   };
 
@@ -137,6 +141,33 @@ export default function Point({ navigation }) {
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#10B981" />
         <Text style={styles.loadingText}>Memuat pencapaian...</Text>
+      </View>
+    );
+  }
+
+  // Not logged in state
+  if (!isLoggedIn) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <MaterialIcons name="workspace-premium" size={48} color="#FFFFFF" />
+          <Text style={styles.headerTitle}>Pencapaian Saya</Text>
+        </View>
+
+        <View style={styles.emptyStateContainer}>
+          <MaterialIcons name="login" size={80} color="#D1D5DB" />
+          <Text style={styles.emptyStateTitle}>Login Diperlukan</Text>
+          <Text style={styles.emptyStateText}>
+            Silakan login untuk melihat poin dan pencapaian Anda
+          </Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate("Login")}
+          >
+            <MaterialIcons name="login" size={20} color="#FFFFFF" />
+            <Text style={styles.loginButtonText}>Login Sekarang</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -689,5 +720,39 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 24,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#111827",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  loginButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#10B981",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  loginButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

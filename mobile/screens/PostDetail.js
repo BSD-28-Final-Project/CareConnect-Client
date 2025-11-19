@@ -10,6 +10,9 @@ import {
   Dimensions,
   Alert,
   Linking,
+  Modal,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -410,7 +413,9 @@ export default function PostDetail({ route, navigation }) {
                       <body>
                         <div id="map"></div>
                         <script>
-                          const map = L.map('map').setView([${post.location.lat}, ${post.location.lng}], 15);
+                          const map = L.map('map').setView([${
+                            post.location.lat
+                          }, ${post.location.lng}], 15);
                           
                           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             maxZoom: 19,
@@ -419,7 +424,9 @@ export default function PostDetail({ route, navigation }) {
                           
                           L.marker([${post.location.lat}, ${post.location.lng}])
                             .addTo(map)
-                            .bindPopup('${post.location.name || "Lokasi Kegiatan"}')
+                            .bindPopup('${
+                              post.location.name || "Lokasi Kegiatan"
+                            }')
                             .openPopup();
                         </script>
                       </body>
@@ -434,7 +441,7 @@ export default function PostDetail({ route, navigation }) {
                 style={styles.openMapButton}
                 onPress={() => {
                   const osmUrl = `https://www.openstreetmap.org/?mlat=${post.location.lat}&mlon=${post.location.lng}&zoom=15`;
-                  Linking.openURL(osmUrl).catch(err => 
+                  Linking.openURL(osmUrl).catch((err) =>
                     Alert.alert("Error", "Tidak bisa membuka OpenStreetMap")
                   );
                 }}
