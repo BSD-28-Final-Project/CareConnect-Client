@@ -9,9 +9,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Alert,
-  Modal,
-  Platform,
-  StatusBar,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -388,7 +386,7 @@ export default function PostDetail({ route, navigation }) {
             </View>
           )}
 
-          {/* Map WebView */}
+          {/* Map WebView - OpenStreetMap */}
           {post.location?.lat && post.location?.lng && (
             <View style={styles.mapContainer}>
               <WebView
@@ -398,6 +396,12 @@ export default function PostDetail({ route, navigation }) {
                     <html>
                       <head>
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+                          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+                          crossorigin=""/>
+                        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                          crossorigin=""></script>
                         <style>
                           body, html { margin: 0; padding: 0; height: 100%; }
                           #map { height: 100%; width: 100%; }
@@ -406,25 +410,17 @@ export default function PostDetail({ route, navigation }) {
                       <body>
                         <div id="map"></div>
                         <script>
-                          function initMap() {
-                            const location = { lat: ${
-                              post.location.lat
-                            }, lng: ${post.location.lng} };
-                            const map = new google.maps.Map(document.getElementById('map'), {
-                              zoom: 15,
-                              center: location,
-                            });
-                            const marker = new google.maps.Marker({
-                              position: location,
-                              map: map,
-                              title: "${
-                                post.location.name || "Lokasi Kegiatan"
-                              }"
-                            });
-                          }
-                        </script>
-                        <script async defer
-                          src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+                          const map = L.map('map').setView([${post.location.lat}, ${post.location.lng}], 15);
+                          
+                          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap contributors'
+                          }).addTo(map);
+                          
+                          L.marker([${post.location.lat}, ${post.location.lng}])
+                            .addTo(map)
+                            .bindPopup('${post.location.name || "Lokasi Kegiatan"}')
+                            .openPopup();
                         </script>
                       </body>
                     </html>
@@ -437,9 +433,10 @@ export default function PostDetail({ route, navigation }) {
               <TouchableOpacity
                 style={styles.openMapButton}
                 onPress={() => {
-                  // Open external map app
-                  const url = `https://www.google.com/maps/search/?api=1&query=${post.location.lat},${post.location.lng}`;
-                  // Linking.openURL(url);
+                  const osmUrl = `https://www.openstreetmap.org/?mlat=${post.location.lat}&mlon=${post.location.lng}&zoom=15`;
+                  Linking.openURL(osmUrl).catch(err => 
+                    Alert.alert("Error", "Tidak bisa membuka OpenStreetMap")
+                  );
                 }}
               >
                 <MaterialIcons name="open-in-new" size={16} color="#047857" />
